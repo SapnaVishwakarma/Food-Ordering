@@ -1,7 +1,6 @@
 from rest_framework import routers
 from django.contrib import admin
 from django.urls import path,include
-from myapp.views import home
 from myapp.views import ProductViewSet,RestaurantListCreateView, RestaurantRetrieveUpdateDestroyView, CategoryAPIView, CategoryDetailAPIView,RegisterAPIView, LoginAPIView
 
 
@@ -16,5 +15,4 @@ urlpatterns = [
     path('categories/<int:pk>/', CategoryDetailAPIView.as_view(), name='category-detail'),   
     path("register/", RegisterAPIView.as_view(), name="register"),
     path("login/", LoginAPIView.as_view(), name="login"),
-    path("", home, name="home"),  # This will serve React's index.html
 ]

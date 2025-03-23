@@ -1,20 +1,17 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics
-from myapp.models import Product,Restaurant,Category
-from myapp.serializers import ProductSerializer, RestaurantSerializer,CategorySerializer, RegisterSerializer
+from myapp.models import Product,Restaurant,Category,Order, CartItem, CustomUser
+from myapp.serializers import ProductSerializer, RestaurantSerializer,CategorySerializer, OrderSerializer,RegisterSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import JsonResponse
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.shortcuts import render
 
-def home(request):
-    return render(request , 'index.html')
+
 
 
 # Create your views here.
@@ -96,23 +93,39 @@ class CategoryDetailAPIView(APIView):
 #Register
 class RegisterAPIView(APIView):
     permission_classes = []  # No authentication required for registration
+    
     def post(self, request):
+        print("Request Data:", request.data)  # Debugging Line
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            print("User Created:", user.username)  # Debugging Line
             return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
+        
+        print("Errors:", serializer.errors)  # Debugging Line
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # LOGIN API
 class LoginAPIView(APIView):
-    permission_classes = [AllowAny]  # Allow anyone to access
+    permission_classes = [AllowAny]
+
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
 
-        user = authenticate(username=username, password=password)  # Check credentials
+        user = authenticate(username=username, password=password)
         if user:
-            token, _ = Token.objects.get_or_create(user=user)  # Generate token
-            return Response({"message": "Login successful!", "token": token.key}, status=status.HTTP_200_OK)
-        
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                "message": "Login successful!",
+                "access_token": str(refresh.access_token),
+                "refresh_token": str(refresh)
+            }, status=status.HTTP_200_OK)
+
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]

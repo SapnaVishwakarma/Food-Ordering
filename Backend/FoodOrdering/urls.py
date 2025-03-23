@@ -22,6 +22,7 @@ from myapp.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("myapp/",include('myapp.urls')),
-    path('',home),
+    path('', include('myapp.urls')),  # Replace 'myapp' with your actual app name
    
 ]
+

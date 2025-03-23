@@ -1,0 +1,21 @@
+# Python/Django files
+__pycache__/
+*.pyc
+*.pyo
+*.log
+db.sqlite3
+media/
+
+# Virtual Environment
+venv/
+env/
+
+# Secret keys
+.env
+
+# Django migrations cache
+*/migrations/__pycache__/
+
+# React build files
+node_modules/
+build/
